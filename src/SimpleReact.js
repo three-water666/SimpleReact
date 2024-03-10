@@ -20,6 +20,11 @@ function createTextElement(text) {
   };
 }
 
+/**
+ * 为fiber创建真实dom
+ * @param {*} fiber
+ * @returns
+ */
 function createDom(fiber) {
   const dom =
     fiber.type == "TEXT_ELEMENT"
@@ -35,6 +40,12 @@ const isEvent = (key) => key.startsWith("on");
 const isProperty = (key) => key !== "children" && !isEvent(key);
 const isNew = (prev, next) => (key) => prev[key] !== next[key];
 const isGone = (prev, next) => (key) => !(key in next);
+/**
+ * 更新dom属性和事件
+ * @param {*} dom
+ * @param {*} prevProps
+ * @param {*} nextProps
+ */
 function updateDom(dom, prevProps, nextProps) {
   //Remove old or changed event listeners
   Object.keys(prevProps)
@@ -71,6 +82,9 @@ function updateDom(dom, prevProps, nextProps) {
     });
 }
 
+/**
+ * commit阶段
+ */
 function commitRoot() {
   deletions.forEach(commitWork);
   commitWork(wipRoot.child);
@@ -78,6 +92,11 @@ function commitRoot() {
   wipRoot = null;
 }
 
+/**
+ * fiber 插入到真实dom上，还有更新，删除操作
+ * @param {*} fiber
+ * @returns
+ */
 function commitWork(fiber) {
   if (!fiber) {
     return;
@@ -101,6 +120,11 @@ function commitWork(fiber) {
   commitWork(fiber.sibling);
 }
 
+/**
+ * 处理被删除的 fiber
+ * @param {*} fiber
+ * @param {*} domParent
+ */
 function commitDeletion(fiber, domParent) {
   if (fiber.dom) {
     domParent.removeChild(fiber.dom);
@@ -109,6 +133,11 @@ function commitDeletion(fiber, domParent) {
   }
 }
 
+/**
+ * SimpleReact 的 render 函数
+ * @param {*} element
+ * @param {*} container dom节点
+ */
 function render(element, container) {
   wipRoot = {
     dom: container,
@@ -121,12 +150,19 @@ function render(element, container) {
   nextUnitOfWork = wipRoot;
 }
 
+// nextUnitOfWork 下一个工作单元
 let nextUnitOfWork = null;
 let currentRoot = null;
+// wipRoot 缩写work in progress Root
 let wipRoot = null;
 let deletions = null;
 
+/**
+ * 该函数在浏览器空闲时期被调用
+ * @param {*} deadline 该帧剩余时间
+ */
 function workLoop(deadline) {
+  // shouldYield 是否要暂停
   let shouldYield = false;
   while (nextUnitOfWork && !shouldYield) {
     nextUnitOfWork = performUnitOfWork(nextUnitOfWork);
@@ -140,8 +176,14 @@ function workLoop(deadline) {
   requestIdleCallback(workLoop);
 }
 
+// window.requestIdleCallback() 方法插入一个函数，这个函数将在浏览器空闲时期被调用。
 requestIdleCallback(workLoop);
 
+/**
+ * 构造当前fiber的子fiber 返回下一个fiber
+ * @param {*} fiber
+ * @returns
+ */
 function performUnitOfWork(fiber) {
   const isFunctionComponent = fiber.type instanceof Function;
   if (isFunctionComponent) {
@@ -161,9 +203,15 @@ function performUnitOfWork(fiber) {
   }
 }
 
+// wipFiber 缩写work in progress Fiber
 let wipFiber = null;
+// 用于一个函数组件支持多个useState
 let hookIndex = null;
 
+/**
+ * fiber type 是函数组件时
+ * @param {*} fiber
+ */
 function updateFunctionComponent(fiber) {
   wipFiber = fiber;
   hookIndex = 0;
@@ -172,6 +220,11 @@ function updateFunctionComponent(fiber) {
   reconcileChildren(fiber, children);
 }
 
+/**
+ * SimpleReact 的 useState
+ * @param {*} initial
+ * @returns
+ */
 function useState(initial) {
   const oldHook =
     wipFiber.alternate &&
@@ -203,6 +256,10 @@ function useState(initial) {
   return [hook.state, setState];
 }
 
+/**
+ * fiber type 是 html 类型的
+ * @param {*} fiber
+ */
 function updateHostComponent(fiber) {
   if (!fiber.dom) {
     fiber.dom = createDom(fiber);
@@ -210,6 +267,11 @@ function updateHostComponent(fiber) {
   reconcileChildren(fiber, fiber.props.children);
 }
 
+/**
+ * 给 wipFiber 用 elements 构造子 fiber，构造中做比较
+ * @param {*} wipFiber
+ * @param {*} elements
+ */
 function reconcileChildren(wipFiber, elements) {
   let index = 0;
   let oldFiber = wipFiber.alternate && wipFiber.alternate.child;
