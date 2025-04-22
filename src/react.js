@@ -1,3 +1,5 @@
+import { useState as _useState } from "./react-reconciler";
+
 function createElement(type, props, ...children) {
   return {
     type,
@@ -19,3 +21,14 @@ function createTextElement(text) {
     },
   };
 }
+
+function useState(initial) {
+  return _useState(initial);
+}
+
+const react = {
+  createElement,
+  useState,
+};
+
+export default react;

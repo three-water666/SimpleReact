@@ -1,3 +1,5 @@
+import { render as _render } from "./react-reconciler";
+
 // 判断该属性是事件
 const isEvent = (key) => key.startsWith("on");
 // 不是事件就是属性
@@ -12,7 +14,7 @@ const isGone = (prev, next) => (key) => !(key in next);
  * @param {*} prevProps
  * @param {*} nextProps
  */
-function updateDom(dom, prevProps, nextProps) {
+export function updateDom(dom, prevProps, nextProps) {
   //Remove old or changed event listeners
   Object.keys(prevProps)
     .filter(isEvent)
@@ -53,7 +55,7 @@ function updateDom(dom, prevProps, nextProps) {
  * @param {*} fiber
  * @returns
  */
-function createDom(fiber) {
+export function createDom(fiber) {
   const dom =
     fiber.type == "TEXT_ELEMENT"
       ? document.createTextNode("")
@@ -63,3 +65,13 @@ function createDom(fiber) {
 
   return dom;
 }
+
+export function render(element, container) {
+  _render(element, container);
+}
+
+const reactDom = {
+  render,
+};
+
+export default reactDom;

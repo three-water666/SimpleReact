@@ -1,4 +1,6 @@
-import SimpleReact from "./SimpleReact.js";
+// import SimpleReact from "./SimpleReact.js";
+import SimpleReact from "./react";
+import SimpleReactDom from "./react-dom";
 
 function Counter() {
   const [count, setCount] = SimpleReact.useState(1);
@@ -10,4 +12,4 @@ function Counter() {
     </div>
   );
 }
-SimpleReact.render(<Counter />, document.getElementById("root"));
+SimpleReactDom.render(<Counter />, document.getElementById("root"));

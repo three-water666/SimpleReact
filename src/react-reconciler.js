@@ -1,3 +1,6 @@
+import unstable_requestIdleCallback from "./scheduler";
+import { createDom, updateDom } from "./react-dom";
+
 // nextUnitOfWork 下一个工作单元
 let nextUnitOfWork = null;
 let currentRoot = null;
@@ -77,11 +80,10 @@ function workLoop(deadline) {
     commitRoot();
   }
 
-  requestIdleCallback(workLoop);
+  unstable_requestIdleCallback(workLoop);
 }
 
-// window.requestIdleCallback() 方法插入一个函数，这个函数将在浏览器空闲时期被调用。
-requestIdleCallback(workLoop);
+unstable_requestIdleCallback(workLoop);
 
 /**
  * 构造当前fiber的子fiber 返回下一个fiber
@@ -124,7 +126,7 @@ function updateFunctionComponent(fiber) {
  * @param {*} initial
  * @returns
  */
-function useState(initial) {
+export function useState(initial) {
   const oldHook =
     wipFiber.alternate &&
     wipFiber.alternate.hooks &&
@@ -227,7 +229,7 @@ function reconcileChildren(wipFiber, elements) {
  * @param {*} element
  * @param {*} container dom节点
  */
-function render(element, container) {
+export function render(element, container) {
   wipRoot = {
     dom: container,
     props: {
